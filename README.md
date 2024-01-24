@@ -1,4 +1,5 @@
-This is Tic Tac Toe game. The highlight about this game:   
+This is Tic Tac Toe game. The highlight about this game:  
+
     1. It will take user input for board size >= 3, i.e. 3x3, 4x4, 5x5 etc  
     
     2. It will ask for player's marker ('X' or 'O')  
