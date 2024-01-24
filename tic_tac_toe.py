@@ -86,21 +86,14 @@ def getBoardAvailableCells():
     return option
 
 def getPlayerMarker():
-    global player1_marker
-    global player2_marker
-
-    valid = False
-    while not valid:
-        choice = input("\nPlease enter board marker 'X' or 'O' for Player 1: ")
-        if (choice == 'X' or choice == 'O'):
-            player1_marker = choice
-            if (choice == 'X'):
-                player2_marker = 'O'
-            else:
-                player2_marker = 'X'
-            valid = True
-        else:
-            print(f'Please type in valid marker!')
+    choice = ''
+    while (choice != 'X' and choice != 'O'):
+        choice = input("\nPlease enter board marker 'X' or 'O' for Player 1: ").upper()
+    
+    if (choice == 'X'): 
+        return (choice, 'O')
+    else:
+        return (choice, 'X')
 
 def getPlayerChoice():
     cells = getBoardAvailableCells()
@@ -136,7 +129,7 @@ def isDiagonalCell(row, col):
     return False
 
 def markOnBoard(row, col):
-    print('row: {}, col {}'.format(row, col))
+    # print('row: {}, col {}'.format(row, col))
     if (current_player == 0):
         board[row][col] = player1_marker
     else:
@@ -241,23 +234,25 @@ def isTie():
     return False
 
 def getPlayerGameOnOrOff():
-    choice = 'N'
-    while choice != 'Y':
-        choice = input("\nDo you want to continue another round of game 'Y' or 'N'?: ")
-        if choice == 'Y':
-            return True
-        elif choice == 'N':
-            return False
-        else:
-            print(f'\nPlase enter a valid input!!!\n')
+    choice = ''
+    while choice != 'Y' and choice != 'N':
+        choice = input("\nDo you want to continue another round of game 'Y' or 'N'?: ").upper()
+
+    if choice == 'Y':
+        return True
+    else:
+        return False
 
 def main():
     global current_player
+    global player1_marker
+    global player2_marker
+
     print(f'\nWelcome to Tic Tac Toe ...')
 
     initGame()
     displayBoard()
-    getPlayerMarker()
+    player1_marker, player2_marker = getPlayerMarker()
 
     game_on = True
     prompt = False
@@ -280,7 +275,8 @@ def main():
             if game_on:
                 initGame()
                 displayBoard()
-                getPlayerMarker()
+                player1_marker, player2_marker = getPlayerMarker()
+                # getPlayerMarker()
             else:
                 print(f'\nGOOD BYE!!!')
 
