@@ -1,3 +1,4 @@
+import random
 
 board = []
 board_dim = 3 # Same number of rows and columns
@@ -20,6 +21,8 @@ There are two diagonals:
 '''
 no_win_diagonal = set()
 
+available_cell = set()
+
 def initGame():
     global board_dim
     global board
@@ -29,6 +32,8 @@ def initGame():
     global no_win_diagonal
     global no_win_col_set
     global no_win_row_set
+    global available_cell
+    global current_player
 
     # Init global variable
     board = []
@@ -36,13 +41,18 @@ def initGame():
     no_win_diagonal = set()
     no_win_col_set = set()
     no_win_row_set = set()
-    current_player = -1
+    available_cell = set()
     player1_marker = ''
     player2_marker = ''
+    current_player = random.randint(0, 1) # Choose random between 0 and 1
 
     valid = False
     while not valid:
-        board_dim = int(input("\nEnter board dimension which is greater than or equal to 3: "))
+        data = input("\nEnter board dimension which is greater than or equal to 3: ")
+        if not data.isdigit():
+            board_dim = -1
+        else:
+            board_dim = int(data)
         if board_dim < 3:
             print(f'Invalid board dimension!')
         else:
@@ -52,6 +62,7 @@ def initGame():
     i = 1
     while i <= (board_dim * board_dim):
         col.append(i)
+        available_cell.add(i)
         if (i % board_dim == 0):
             board.append(col)
 
@@ -76,19 +87,10 @@ def displayBoard():
         print(formated_line) 
         row += 1
 
-def getBoardAvailableCells():
-    option = []
-    for row in board:
-        for item in row:
-            if (type(item) == int):
-                option.append(item)
-
-    return option
-
 def getPlayerMarker():
     choice = ''
     while (choice != 'X' and choice != 'O'):
-        choice = input("\nPlease enter board marker 'X' or 'O' for Player 1: ").upper()
+        choice = input("\nPlease enter board marker 'X' or 'O' for Player {}: ".format(current_player+1)).upper()
     
     if (choice == 'X'): 
         return (choice, 'O')
@@ -96,12 +98,17 @@ def getPlayerMarker():
         return (choice, 'X')
 
 def getPlayerChoice():
-    cells = getBoardAvailableCells()
-    s = '\nChoose a cell number from ' + str(cells) + ' for Player {}: '.format(current_player+1);
+    s = '\nChoose a cell number from ' + str(available_cell) + ' for Player {}: '.format(current_player+1);
     valid = False
     while not valid:
-        choice = int(input(s))
-        if choice in cells:
+        data  = input(s)
+        if not data.isdigit():
+            print(f'Choose a number!')
+            continue
+        else:
+            choice = int(data)
+
+        if choice in available_cell:
             valid = True
         else:
             print(f'Invalid cell selected!')
@@ -141,26 +148,32 @@ def isWinner(row, col):
     global no_win_diagonal
 
     # Check in row for winner
-    marker1 = 0
-    marker2 = 0
     if row not in no_win_row_set:
-        for item in board[row]:
-            if item == player1_marker:
-                marker1 += 1
-            elif item == player2_marker:
-                marker2 += 1
-        if marker2 > 0 and marker1 > 0:
+        p1mark = [item for item in board[row] if item == player1_marker]
+        p2mark = [item for item in board[row] if item == player2_marker]
+        if (len(p1mark) > 0) and (len(p2mark) > 0):
             no_win_row_set.add(row)
-        elif ((current_player == 0) and (marker1 == board_dim)):
+        elif ((current_player == 0) and (len(p1mark) == board_dim)):
             return True
-        elif ((current_player == 1) and (marker2 == board_dim)):
+        elif ((current_player == 1) and (len(p2mark) == board_dim)):
             return True
 
     # Check in column for winner
-    marker1 = 0
-    marker2 = 0
     
     if col not in no_win_col_set:
+        p1col = [player1_marker for i in range(0, board_dim) if board[i][col] == player1_marker]
+        p2col = [player2_marker for i in range(0, board_dim) if board[i][col] == player2_marker]
+
+        if (len(p1col) > 0) and (len(p2col) > 0):
+            no_win_col_set.add(col)
+        elif ((current_player == 0) and (len(p1col) == board_dim)):
+            return True
+        elif ((current_player == 1) and (len(p2col) == board_dim)):
+            return True
+        '''
+        # OK
+        marker1 = 0
+        marker2 = 0
         for rw in board:
             if rw[col] == player1_marker:
                 marker1 += 1
@@ -172,6 +185,7 @@ def isWinner(row, col):
             return True
         elif ((current_player == 1) and (marker2 == board_dim)):
             return True
+        '''
 
     # Check in diagonal for winner
     marker1 = 0
@@ -181,12 +195,19 @@ def isWinner(row, col):
         if (row == col):
             diagonal_num = 1
             if diagonal_num not in no_win_diagonal:
+                p1mark = [board[rc][rc] for rc in range(0, board_dim) if board[rc][rc] == player1_marker]
+                p2mark = [board[rc][rc] for rc in range(0, board_dim) if board[rc][rc] == player2_marker]
+
+                marker1 = len(p1mark)
+                marker2 = len(p2mark)
+
+                '''
                 for rc in range(0, board_dim):
                     if board[rc][rc] == player1_marker:
                         marker1 += 1
                     elif board[rc][rc] == player2_marker:
                         marker2 += 1
-
+                '''
                 if marker1 > 0 and marker2 > 0:
                     no_win_diagonal.add(diagonal_num)
                 elif (marker1 == board_dim) and (current_player == 0):
@@ -196,6 +217,13 @@ def isWinner(row, col):
         else:
             diagonal_num = 2
             if diagonal_num not in no_win_diagonal:
+                p1mark = [board[r][(board_dim-1) - r] for r in range(0, board_dim) if player1_marker == board[r][(board_dim-1)-r]]
+                p2mark = [board[r][(board_dim-1) - r] for r in range(0, board_dim) if player2_marker == board[r][(board_dim-1)-r]]
+
+                marker1 = len(p1mark)
+                marker2 = len(p2mark)
+
+                '''
                 cl = board_dim-1
                 for r in range(0, board_dim):
                     if board[r][cl] == player1_marker:
@@ -204,7 +232,7 @@ def isWinner(row, col):
                         marker2 += 1
 
                     cl = cl - 1
-
+                '''
                 if marker2 > 0 and marker1 > 0:
                     no_win_diagonal.add(diagonal_num)
                 elif (current_player == 0) and (marker1 == board_dim):
@@ -257,8 +285,8 @@ def main():
     game_on = True
     prompt = False
     while game_on:
-        current_player = (current_player + 1) % 2
         cellId = getPlayerChoice()
+        available_cell.remove(cellId)
         row, col = getCell(cellId)
         markOnBoard(row, col)
         displayBoard()
@@ -276,9 +304,10 @@ def main():
                 initGame()
                 displayBoard()
                 player1_marker, player2_marker = getPlayerMarker()
-                # getPlayerMarker()
             else:
                 print(f'\nGOOD BYE!!!')
-
+        else:
+            current_player = (current_player + 1) % 2
+            
 if __name__ == '__main__':
     main()
