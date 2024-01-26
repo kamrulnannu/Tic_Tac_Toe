@@ -46,6 +46,8 @@ def initGame():
     player2_marker = ''
     current_player = random.randint(0, 1) # Choose random between 0 and 1
 
+    player1_marker, player2_marker = getPlayerMarker()
+
     valid = False
     while not valid:
         data = input("\nEnter board dimension which is greater than or equal to 3: ")
@@ -92,10 +94,16 @@ def getPlayerMarker():
     while (choice != 'X' and choice != 'O'):
         choice = input("\nPlease enter board marker 'X' or 'O' for Player {}: ".format(current_player+1)).upper()
     
-    if (choice == 'X'): 
-        return (choice, 'O')
+    if (current_player == 0):
+        if (choice == 'X'): 
+            return (choice, 'O')
+        else:
+            return (choice, 'X')
     else:
-        return (choice, 'X')
+        if (choice == 'X'): 
+            return ('O', choice)
+        else:
+            return ('X', choice)
 
 def getPlayerChoice():
     s = '\nChoose a cell number from ' + str(available_cell) + ' for Player {}: '.format(current_player+1);
@@ -280,7 +288,6 @@ def main():
 
     initGame()
     displayBoard()
-    player1_marker, player2_marker = getPlayerMarker()
 
     game_on = True
     prompt = False
@@ -303,7 +310,6 @@ def main():
             if game_on:
                 initGame()
                 displayBoard()
-                player1_marker, player2_marker = getPlayerMarker()
             else:
                 print(f'\nGOOD BYE!!!')
         else:
