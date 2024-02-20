@@ -10,6 +10,10 @@ current_player = -1
     NOTE:
     1. abc = () is not considered as set, but considered as tuple
     2. abc = set() is considered as set
+    3. (N-1 x N-1) Board cell is numbered 0...N-1 (i.e. cell_id: 0, 1, 2, 3, ...N-1),
+        how to compute row_num and col_num:
+        (a) row_num = cell_id / N
+        (b) col_num = cell_id % N
 '''
 no_win_row_set = set()
 no_win_col_set = set()
